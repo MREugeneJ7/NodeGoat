@@ -4,14 +4,14 @@ const express = require("express");
 const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
 const session = require("express-session");
-// const csrf = require('csurf');
+const csrf = require('csurf');
 const consolidate = require("consolidate"); // Templating library adapter for Express
 const swig = require("swig");
-// const helmet = require("helmet");
+const helmet = require("helmet");
 const MongoClient = require("mongodb").MongoClient; // Driver for connecting to MongoDB
 const http = require("http");
 const marked = require("marked");
-//const nosniff = require('dont-sniff-mimetype');
+const nosniff = require('dont-sniff-mimetype');
 const app = express(); // Web framework to handle routing requests
 const routes = require("./app/routes");
 const { port, db, cookieSecret } = require("./config/config"); // Application config properties
@@ -55,10 +55,10 @@ MongoClient.connect(db, (err, db) => {
 
     // TODO: Add another vuln: https://github.com/helmetjs/helmet/issues/26
     // Enable XSS filter in IE (On by default)
-    // app.use(helmet.iexss());
+    //app.use(helmet.iexss());
     // Now it should be used in hit way, but the README alerts that could be
     // dangerous, like specified in the issue.
-    //app.use(helmet.xssFilter({ setOnOldIE: true }));
+    app.use(helmet.xssFilter({ setOnOldIE: true }));
 
     // Forces browser to only use the Content-Type set in the response header instead of sniffing or guessing it
     app.use(nosniff());
@@ -101,7 +101,7 @@ MongoClient.connect(db, (err, db) => {
 
     }));
 
-    /*
+    
     // Fix for A8 - CSRF
     // Enable Express csrf protection
     app.use(csrf());
@@ -110,7 +110,7 @@ MongoClient.connect(db, (err, db) => {
         res.locals.csrftoken = req.csrfToken();
         next();
     });
-    */
+    
 
     // Register templating engine
     app.engine(".html", consolidate.swig);
